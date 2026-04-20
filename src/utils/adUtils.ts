@@ -1,6 +1,5 @@
 import {
   showFullScreenAd,
-  loadFullScreenAd,
 } from '@apps-in-toss/framework';
 
 /** 네트워크 상태 감지 */
@@ -47,39 +46,3 @@ export const safeShowRewardedAd = async (
   });
 };
 
-/**
- * 전면 광고 안전 래퍼
- * - 오프라인: 조용히 스킵
- * - 실패: 조용히 스킵
- */
-export const safeShowInterstitialAd = async (
-  adGroupId: string,
-): Promise<void> => {
-  if (!isOnline()) return;
-
-  return new Promise<void>((resolve) => {
-    const cleanup = showFullScreenAd({
-      options: { adGroupId },
-      onEvent: (event) => {
-        if (event.type === 'dismissed') {
-          resolve();
-        }
-      },
-      onError: () => {
-        resolve(); // 실패 시 조용히 스킵
-      },
-    });
-    void cleanup;
-  });
-};
-
-/**
- * 전면 광고 사전 로딩
- */
-export const preloadFullScreenAd = (adGroupId: string): void => {
-  loadFullScreenAd({
-    options: { adGroupId },
-    onEvent: () => {},
-    onError: () => {},
-  });
-};

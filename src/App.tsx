@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, StyleSheet, BackHandler } from 'react-native';
 import { useMissionState } from './hooks/useMissionState';
 import MissionCard from './screens/MissionCard';
@@ -10,9 +10,7 @@ import MissionPacks from './components/MissionPacks';
 import Settings from './components/Settings';
 import PreviewModal from './components/PreviewModal';
 import Snackbar from './components/Snackbar';
-import { AD_GROUP_ID } from './config/env';
 import { getTomorrowMission } from './data/missions';
-import { safeShowInterstitialAd, preloadFullScreenAd } from './utils/adUtils';
 
 export default function AppNavigator() {
   const {
@@ -45,8 +43,6 @@ export default function AppNavigator() {
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== 'undefined' ? (navigator.onLine ?? true) : true,
   );
-  const adPreloaded = useRef(false);
-
   // 네트워크 상태 감지
   useEffect(() => {
     const onOnline = () => setIsOnline(true);
@@ -67,32 +63,12 @@ export default function AppNavigator() {
     setSnackbar(null);
   }, []);
 
-  // 광고 사전 로딩 (체크리스트: 실시간 로딩 금지)
-  useEffect(() => {
-    if (AD_GROUP_ID && !adPreloaded.current && !state.isPremium) {
-      adPreloaded.current = true;
-      preloadFullScreenAd(AD_GROUP_ID);
-    }
-  }, [state.isPremium]);
-
-  // 새 뱃지 획득 처리: isPremium false → 전면 광고 → BadgeModal
+  // 새 뱃지 획득 처리
   useEffect(() => {
     if (newBadgeIds.length === 0) return;
-
-    const showModal = () => {
-      setPendingBadgeIds(newBadgeIds);
-      setShowBadgeModal(true);
-    };
-
-    if (!state.isPremium && AD_GROUP_ID) {
-      void (async () => {
-        await safeShowInterstitialAd(AD_GROUP_ID);
-        showModal();
-      })();
-    } else {
-      showModal();
-    }
-  }, [newBadgeIds, state.isPremium]);
+    setPendingBadgeIds(newBadgeIds);
+    setShowBadgeModal(true);
+  }, [newBadgeIds]);
 
   const handleDismissBadge = useCallback(() => {
     setShowBadgeModal(false);
