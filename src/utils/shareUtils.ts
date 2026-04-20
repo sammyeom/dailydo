@@ -9,14 +9,14 @@ export async function shareMissionComplete(
   state: MissionState,
 ): Promise<void> {
   const shareLink = await getTossShareLink(
-    `intoss://dailydo?streak=${state.streak}`,
+    `intoss://todoit?streak=${state.streak}`,
   );
 
   const msg = [
     `오늘의 미션 완료! 🎉`,
     `${mission.emoji} ${mission.title}`,
     `🔥 ${state.streak}일 연속 달성 중`,
-    `#오늘의미션 #DailyDo`,
+    `#오늘의미션 #ToDoIt`,
     shareLink,
   ].join('\n');
 
@@ -29,14 +29,14 @@ export async function shareBadge(
   state: MissionState,
 ): Promise<void> {
   const shareLink = await getTossShareLink(
-    `intoss://dailydo?badge=${badge.id}`,
+    `intoss://todoit?badge=${badge.id}`,
   );
 
   const msg = [
     `${badge.emoji} 뱃지 획득! — ${badge.name}`,
     `${badge.description}`,
     `🔥 ${state.streak}일 연속 | 총 ${state.totalCompleted}회 완료`,
-    `#DailyDo`,
+    `#ToDoIt`,
     shareLink,
   ].join('\n');
 
@@ -51,11 +51,11 @@ export async function shareStampBoard(state: MissionState): Promise<void> {
     .join('');
 
   const shareLink = await getTossShareLink(
-    `intoss://dailydo?streak=${state.streak}&badges=${state.badges.length}`,
+    `intoss://todoit?streak=${state.streak}&badges=${state.badges.length}`,
   );
 
   const lines: string[] = [
-    `🌟 DailyDo 스탬프 보드`,
+    `🌟 ToDoIt 스탬프 보드`,
     `🔥 ${state.streak}일 연속 | 총 ${state.totalCompleted}회 완료`,
   ];
 
@@ -63,7 +63,7 @@ export async function shareStampBoard(state: MissionState): Promise<void> {
     lines.push(`뱃지: ${badgeEmojis}`);
   }
 
-  lines.push(`#DailyDo`);
+  lines.push(`#ToDoIt`);
   lines.push(shareLink);
 
   await share({ message: lines.join('\n') });

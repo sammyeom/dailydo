@@ -3,7 +3,7 @@ import { Storage } from '@apps-in-toss/framework';
 import { getTodayMission, type Mission } from '../data/missions';
 import { MISSION_PACKS, getPackMission } from '../data/missionPacks';
 
-const STORAGE_KEY = 'dailydo_state';
+const STORAGE_KEY = 'todoit_state';
 
 // ─── Badge definitions ─────────────────────────────────────
 export interface BadgeDef {
