@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Storage } from '@apps-in-toss/framework';
+import { Storage, IAP } from '@apps-in-toss/framework';
 import { getTodayMission, type Mission } from '../data/missions';
-import { MISSION_PACKS, getPackMission } from '../data/missionPacks';
+import { MISSION_PACKS, PREMIUM_PLAN, getPackMission } from '../data/missionPacks';
 
 const STORAGE_KEY = 'todoit_state';
 
@@ -21,6 +21,10 @@ export const BADGE_DEFS: BadgeDef[] = [
   { id: 'health_10',      emoji: '🏃', name: '건강 마스터',    description: '건강 미션 10회 완료' },
   { id: 'money_10',       emoji: '💰', name: '절약 고수',      description: '절약 미션 10회 완료' },
   { id: 'mindfulness_5',  emoji: '🧘', name: '마인드풀 루키',  description: '마음챙김 미션 5회 완료' },
+  // 프리미엄 전용 뱃지
+  { id: 'premium_vip',    emoji: '👑', name: 'VIP 서포터',     description: '프리미엄 이용권 구매' },
+  { id: 'all_category',   emoji: '🌈', name: '올라운더',       description: '모든 카테고리 미션 각 5회 완료' },
+  { id: 'streak_100',     emoji: '🏅', name: '100일 전설',     description: '100일 연속 달성' },
 ];
 
 // ─── State types ───────────────────────────────────────────
@@ -98,11 +102,24 @@ function computeNewBadges(s: MissionState): string[] {
     pending.push('money_10');
   if (s.categoryCompletions.mindfulness >= 5 && !earned.has('mindfulness_5'))
     pending.push('mindfulness_5');
+  // 프리미엄 전용 뱃지
+  if (s.isPremium && !earned.has('premium_vip'))
+    pending.push('premium_vip');
+  if (s.streak >= 100 && !earned.has('streak_100'))
+    pending.push('streak_100');
+  if (
+    s.categoryCompletions.health >= 5 &&
+    s.categoryCompletions.money >= 5 &&
+    s.categoryCompletions.productivity >= 5 &&
+    s.categoryCompletions.mindfulness >= 5 &&
+    !earned.has('all_category')
+  )
+    pending.push('all_category');
 
   return pending;
 }
 
-/** 구매한 팩 미션 우선 → 소진되면 일반 미션 fallback */
+/** 구매한 팩 미션 우선 → 소진되면 일반 미션 fallback (선호 카테고리 반영) */
 function resolvePackMission(s: MissionState, todayKey: string): Mission {
   if (s.purchasedPacks.length > 0) {
     // 날짜 기반 seed로 팩 + 미션 인덱스 결정
@@ -114,7 +131,9 @@ function resolvePackMission(s: MissionState, todayKey: string): Mission {
       return getPackMission(pack, dayIndex);
     }
   }
-  return getTodayMission(todayKey);
+  // 프리미엄 유저는 선호 카테고리 반영
+  const preferred = s.isPremium ? s.preferredCategories : undefined;
+  return getTodayMission(todayKey, preferred);
 }
 
 export type Screen = 'home' | 'progress' | 'complete' | 'stamps' | 'packs' | 'settings';
@@ -185,6 +204,49 @@ export function useMissionState() {
     void Storage.setItem(STORAGE_KEY, JSON.stringify(state)).catch(() => {});
   }, [state]);
 
+  // 앱 시작 시 구매 내역 자동 복원 (재설치 후에도 프리미엄/팩 유지)
+  useEffect(() => {
+    if (!hydrated.current) return;
+    (async () => {
+      try {
+        const result = await IAP.getCompletedOrRefundedOrders();
+        const orders = (result?.orders ?? []) as { productId?: string; sku?: string }[];
+        setState((prev) => {
+          let changed = false;
+          let next = { ...prev };
+
+          // 프리미엄 복원
+          if (!prev.isPremium && orders.some((o) => (o.productId ?? o.sku) === PREMIUM_PLAN.id)) {
+            next = { ...next, isPremium: true };
+            changed = true;
+          }
+
+          // 팩 복원
+          const packIds = MISSION_PACKS.map((p) => p.id);
+          for (const order of orders) {
+            const id = order.productId ?? order.sku ?? '';
+            if (packIds.includes(id) && !prev.purchasedPacks.includes(id)) {
+              next = { ...next, purchasedPacks: [...next.purchasedPacks, id] };
+              changed = true;
+            }
+          }
+
+          if (changed) {
+            const earned = computeNewBadges(next);
+            if (earned.length > 0) {
+              next.badges = [...next.badges, ...earned];
+              setTimeout(() => setNewBadgeIds(earned), 0);
+            }
+          }
+
+          return changed ? next : prev;
+        });
+      } catch {
+        // 복원 실패 시 무시 — 수동 복원 버튼으로 대체 가능
+      }
+    })();
+  }, [hydrated.current]);
+
   const completeMission = useCallback(() => {
     const mission = getTodayMission(getTodayKey());
 
@@ -246,7 +308,15 @@ export function useMissionState() {
   }, []);
 
   const setPremium = useCallback((v: boolean) => {
-    setState((prev) => ({ ...prev, isPremium: v }));
+    setState((prev) => {
+      const next = { ...prev, isPremium: v };
+      const earned = computeNewBadges(next);
+      if (earned.length > 0) {
+        next.badges = [...prev.badges, ...earned];
+        setTimeout(() => setNewBadgeIds(earned), 0);
+      }
+      return next;
+    });
   }, []);
 
   const addPurchasedPack = useCallback((packId: string) => {

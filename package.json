@@ -4,8 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "granite dev",
-    "build": "ait build && [ -f dailydo.ait ] && mv dailydo.ait todoit.ait || true",
-    "typecheck": "tsc --noEmit"
+    "build": "ait build",
+    "typecheck": "tsc --noEmit",
+    "deploy": "ait deploy"
   },
   "dependencies": {
     "@apps-in-toss/framework": "^2.4.6",

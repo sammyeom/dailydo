@@ -12,11 +12,11 @@ export interface MissionPack {
 
 export const MISSION_PACKS: MissionPack[] = [
   {
-    id: 'PACK_DIET',
+    id: 'ait.0000028988.f6d4c2b5.15f7002dd1.6757608156',
     name: '다이어트 7일 팩',
     emoji: '🥗',
-    price: 990,
-    priceLabel: '₩990',
+    price: 1100,
+    priceLabel: '₩1,100',
     description: '7일간 건강한 식습관을 만들어보세요',
     missions: [
       { id: 'diet-1', title: '아침 샐러드 먹기', emoji: '🥗', type: 'check', difficulty: 'easy', category: 'health', description: '신선한 채소로 하루를 시작하세요' },
@@ -29,11 +29,11 @@ export const MISSION_PACKS: MissionPack[] = [
     ],
   },
   {
-    id: 'PACK_SAVE',
+    id: 'ait.0000028988.bdda906d.8c0a41e732.6757651508',
     name: '절약 챌린지 7일 팩',
     emoji: '💰',
-    price: 990,
-    priceLabel: '₩990',
+    price: 1100,
+    priceLabel: '₩1,100',
     description: '7일간 절약 습관을 길러보세요',
     missions: [
       { id: 'save-1', title: '가계부 쓰기', emoji: '📒', type: 'check', difficulty: 'easy', category: 'money', description: '오늘의 수입과 지출을 기록하세요' },
@@ -46,11 +46,11 @@ export const MISSION_PACKS: MissionPack[] = [
     ],
   },
   {
-    id: 'PACK_PRODUCT',
+    id: 'ait.0000028988.37a699a6.a9958e83ea.6757693117',
     name: '생산성 부스터 7일 팩',
     emoji: '🚀',
-    price: 1490,
-    priceLabel: '₩1,490',
+    price: 1650,
+    priceLabel: '₩1,650',
     description: '7일간 생산성을 극대화하세요',
     missions: [
       { id: 'prod-1', title: '모닝 루틴 완수', emoji: '🌅', type: 'check', difficulty: 'medium', category: 'productivity', description: '아침 루틴을 정하고 실천하세요' },
@@ -75,11 +75,11 @@ export interface PremiumPlan {
 }
 
 export const PREMIUM_PLAN: PremiumPlan = {
-  id: 'PREMIUM_MONTH',
-  name: '프리미엄 월정액',
+  id: 'ait.0000028988.99bbfb0b.0ff1a37898.6757972856',
+  name: '프리미엄 이용권',
   emoji: '👑',
-  price: 1990,
-  priceLabel: '₩1,990/월',
+  price: 2200,
+  priceLabel: '₩2,200',
   description: '광고 제거 + 미션 커스텀 + 전체 팩 포함',
   features: [
     '모든 광고 제거',

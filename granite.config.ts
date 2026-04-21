@@ -3,13 +3,13 @@ import { defineConfig } from '@granite-js/react-native/config';
 
 export default defineConfig({
   scheme: 'intoss',
-  appName: 'dailydo',
+  appName: 'todoit',
   plugins: [
     appsInToss({
       brand: {
         displayName: '오늘의 미션',
-        primaryColor: '#6C5CE7',
-        icon: '',
+        primaryColor: '#4A9FF5',
+        icon: 'https://sammyeom.github.io/todoit/icon.png',
       },
       permissions: [],
     }),

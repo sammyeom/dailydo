@@ -65,17 +65,27 @@ export const MISSIONS: Mission[] = [
   { id: 'h-mi-3', title: '디지털 디톡스 1시간', emoji: '🌿', type: 'timer', duration: 3600, difficulty: 'hard', category: 'mindfulness', description: '1시간 동안 전자기기 없이 보내세요' },
 ];
 
-export function getTodayMission(seed: string): Mission {
+export function getTodayMission(seed: string, preferredCategories?: string[]): Mission {
   const hash = seed.split('').reduce((acc, ch) => acc * 31 + ch.charCodeAt(0), 0);
+
+  // 선호 카테고리가 설정되어 있으면 해당 카테고리 미션 중에서 선택
+  if (preferredCategories && preferredCategories.length > 0 && preferredCategories.length < 4) {
+    const filtered = MISSIONS.filter((m) => preferredCategories.includes(m.category));
+    if (filtered.length > 0) {
+      const idx = Math.abs(hash) % filtered.length;
+      return filtered[idx]!;
+    }
+  }
+
   const idx = Math.abs(hash) % MISSIONS.length;
   return MISSIONS[idx]!;
 }
 
-export function getTomorrowMission(): Mission {
+export function getTomorrowMission(preferredCategories?: string[]): Mission {
   const d = new Date();
   d.setDate(d.getDate() + 1);
   const seed = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  return getTodayMission(seed);
+  return getTodayMission(seed, preferredCategories);
 }
 
 export function getDifficultyLabel(d: Mission['difficulty']): string {

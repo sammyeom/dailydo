@@ -11,6 +11,8 @@ import Settings from './components/Settings';
 import PreviewModal from './components/PreviewModal';
 import Snackbar from './components/Snackbar';
 import { getTomorrowMission } from './data/missions';
+import { preloadAd } from './utils/adUtils';
+import { AD_GROUP_ID } from './config/env';
 
 export default function AppNavigator() {
   const {
@@ -43,6 +45,13 @@ export default function AppNavigator() {
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== 'undefined' ? (navigator.onLine ?? true) : true,
   );
+  // 리워드 광고 사전 로딩 (체크리스트: 실시간 로딩 금지)
+  useEffect(() => {
+    if (AD_GROUP_ID) {
+      preloadAd(AD_GROUP_ID);
+    }
+  }, []);
+
   // 네트워크 상태 감지
   useEffect(() => {
     const onOnline = () => setIsOnline(true);
@@ -201,7 +210,7 @@ export default function AppNavigator() {
 
       {showPreviewModal && (
         <PreviewModal
-          mission={getTomorrowMission()}
+          mission={getTomorrowMission(state.isPremium ? state.preferredCategories : undefined)}
           onClose={() => setShowPreviewModal(false)}
         />
       )}
