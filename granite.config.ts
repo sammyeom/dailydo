@@ -6,12 +6,17 @@ export default defineConfig({
   appName: 'todoit',
   plugins: [
     appsInToss({
+      appType: 'general',
       brand: {
         displayName: '오늘의 미션',
         primaryColor: '#4A9FF5',
         icon: 'https://static.toss.im/appsintoss/33673/3280339c-350e-4049-b6db-8b224fde8a2c.png',
       },
       permissions: [],
+      navigationBar: {
+        withBackButton: true,
+        withHomeButton: true,
+      },
     }),
   ],
 });

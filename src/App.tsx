@@ -14,7 +14,11 @@ import { getTomorrowMission } from './data/missions';
 import { preloadAd } from './utils/adUtils';
 import { AD_GROUP_ID } from './config/env';
 
-export default function AppNavigator() {
+interface AppNavigatorProps {
+  initialParams?: Record<string, string>;
+}
+
+export default function AppNavigator({ initialParams }: AppNavigatorProps) {
   const {
     state,
     screen,
@@ -45,6 +49,14 @@ export default function AppNavigator() {
   const [isOnline, setIsOnline] = useState(
     typeof navigator !== 'undefined' ? (navigator.onLine ?? true) : true,
   );
+  // 딥링크 파라미터로 초기 화면 이동 (랜딩스킴 지원)
+  useEffect(() => {
+    if (!initialParams) return;
+    if (initialParams.badge || initialParams.streak || initialParams.badges) {
+      goStamps();
+    }
+  }, []);
+
   // 리워드 광고 사전 로딩 (체크리스트: 실시간 로딩 금지)
   useEffect(() => {
     if (AD_GROUP_ID) {
