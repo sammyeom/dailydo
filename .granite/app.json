@@ -1,4 +1,5 @@
 {
   "appName": "todoit",
-  "permissions": []
+  "permissions": [],
+  "appType": "general"
 }
